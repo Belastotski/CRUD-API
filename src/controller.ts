@@ -1,19 +1,13 @@
 import { v4, validate } from 'uuid';
-import { NotFindError, ParametrsError } from './errors';
-
-interface User {
-  id?: string;
-  username: string;
-  age: number;
-  hobbies: string[];
-}
+import { NotFindError, ParametrsError } from './errors.js';
+import User from './interface.js';
 
 export default class Controller {
-  private users: User[] = [];
+  private users: Map<string, User> = new Map();
 
   async getUsers(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      resolve(this.users);
+      resolve(Array.from(this.users.values()));
       reject();
     });
   }
@@ -21,7 +15,7 @@ export default class Controller {
   async getUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!validate(id)) reject(new ParametrsError());
-      const user: User | undefined = this.users.find((usr) => usr.id === id);
+      const user: User | undefined = this.users.get(id);
       if (user) resolve(user);
       else reject(new NotFindError('User'));
     });
@@ -35,7 +29,7 @@ export default class Controller {
         id: v4(),
       };
       if (newUser.id && newUser.age && newUser.username && newUser.hobbies && Array.isArray(newUser.hobbies)) {
-        this.users.push(newUser);
+        this.users.set(newUser.id, newUser);
         resolve(newUser);
       } else reject(new ParametrsError('Not contain required fields'));
     });
@@ -44,21 +38,26 @@ export default class Controller {
   async updateUser(id: string, updateUser: User): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!validate(id)) reject(new ParametrsError());
-      let user = this.users.find((usr) => usr.id === id);
+      let user = this.users.get(id);
       if (!user) {
         reject(new NotFindError('User'));
+      } else {
+        user = { ...user, ...updateUser, id: user.id };
+        this.users.set(user.id, user);
+        resolve(user);
       }
-      user = { ...user, ...updateUser };
-      resolve(user);
     });
   }
 
   async deleteUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!validate(id)) reject(new ParametrsError());
-      const user = this.users.find((usr) => usr.id === id);
+      const user = this.users.get(id);
       if (!user) reject(new NotFindError('User'));
-      else resolve(user);
+      else {
+        this.users.delete(id);
+        resolve(user);
+      }
     });
   }
 }
