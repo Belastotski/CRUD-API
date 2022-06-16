@@ -1,6 +1,4 @@
-export default interface User {
-  id: string;
-  username: string;
-  age: number;
-  hobbies: string[];
+export interface CRUDSError {
+  message: string;
+  code: number;
 }

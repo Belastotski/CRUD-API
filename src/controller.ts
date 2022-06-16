@@ -1,6 +1,5 @@
-import { v4, validate } from 'uuid';
+import User from './entity/user.js';
 import { NotFindError, ParametrsError } from './errors.js';
-import User from './interface.js';
 
 export default class Controller {
   private users: Map<string, User> = new Map();
@@ -14,7 +13,7 @@ export default class Controller {
 
   async getUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
-      if (!validate(id)) reject(new ParametrsError());
+      if (!User.validId(id)) reject(new ParametrsError());
       const user: User | undefined = this.users.get(id);
       if (user) resolve(user);
       else reject(new NotFindError('User'));
@@ -24,11 +23,8 @@ export default class Controller {
   async createUser(user: User): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!user) reject(new ParametrsError());
-      const newUser = {
-        ...user,
-        id: v4(),
-      };
-      if (newUser.id && newUser.age && newUser.username && newUser.hobbies && Array.isArray(newUser.hobbies)) {
+      if (User.isValid(user)) {
+        const newUser = new User(user);
         this.users.set(newUser.id, newUser);
         resolve(newUser);
       } else reject(new ParametrsError('Not contain required fields'));
@@ -37,12 +33,12 @@ export default class Controller {
 
   async updateUser(id: string, updateUser: User): Promise<User> {
     return new Promise((resolve, reject) => {
-      if (!validate(id)) reject(new ParametrsError());
-      let user = this.users.get(id);
+      if (!User.validId(id)) reject(new ParametrsError());
+      const user = this.users.get(id);
       if (!user) {
         reject(new NotFindError('User'));
       } else {
-        user = { ...user, ...updateUser, id: user.id };
+        user.update(updateUser);
         this.users.set(user.id, user);
         resolve(user);
       }
@@ -51,7 +47,7 @@ export default class Controller {
 
   async deleteUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
-      if (!validate(id)) reject(new ParametrsError());
+      if (!User.validId(id)) reject(new ParametrsError());
       const user = this.users.get(id);
       if (!user) reject(new NotFindError('User'));
       else {
