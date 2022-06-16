@@ -1,11 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable no-console */
 import http from 'http';
 import Controller from './controller.js';
 import CRUDS from './cruds.js';
+import User from './entity/user.js';
+import { CRUDSError } from './interface.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -21,7 +18,7 @@ const server = http.createServer((req: http.IncomingMessage, res: http.ServerRes
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(users));
       })
-      .catch((err) => {
+      .catch((err: CRUDSError) => {
         console.log('GET Users: ', err.message);
         res.writeHead(err.code || 404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: err.message }));
@@ -34,7 +31,7 @@ const server = http.createServer((req: http.IncomingMessage, res: http.ServerRes
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
       })
-      .catch((err) => {
+      .catch((err: CRUDSError) => {
         console.log('GET User: ', err.message);
         res.writeHead(err.code || 404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: err.message }));
@@ -47,7 +44,7 @@ const server = http.createServer((req: http.IncomingMessage, res: http.ServerRes
         res.writeHead(204, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
       })
-      .catch((err) => {
+      .catch((err: CRUDSError) => {
         console.log('DELETE User:', err.message);
         res.writeHead(err.code || 500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: err.message }));
@@ -61,20 +58,20 @@ const server = http.createServer((req: http.IncomingMessage, res: http.ServerRes
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
       })
-      .catch((err) => {
+      .catch((err: CRUDSError) => {
         console.log('UPDATE User:', err.message);
         res.writeHead(err.code || 404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: err.message }));
       });
   } else if (req.url === '/api/users' && req.method === 'POST') {
     CRUDS.getData(req)
-      .then((user) => control.createUser(user))
+      .then((user: User) => control.createUser(user))
       .then((user) => {
         console.log('CREATE User: ', user);
-        res.writeHead(204, { 'Content-Type': 'application/json' });
+        res.writeHead(201, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(user));
       })
-      .catch((err) => {
+      .catch((err: CRUDSError) => {
         console.log('CREATE User:', err.message);
         res.writeHead(err.code || 404, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: err.message }));

@@ -1,7 +1,7 @@
 import http from 'http';
 import { validate } from 'uuid';
 import { ParametrsError } from './errors.js';
-import User from './interface.js';
+import User from './entity/user';
 
 export default class CRUDS {
   static getData(request: http.IncomingMessage): Promise<User> {
@@ -12,7 +12,8 @@ export default class CRUDS {
           content += chunk.toString();
         });
         request.on('end', () => {
-          // const json = JSON.stringify(content);
+          let json = content.trim();
+          if (!json) json = '{}';
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const user: User = JSON.parse(content);
           resolve(user);
