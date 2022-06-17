@@ -1,12 +1,11 @@
 import User from './entity/user.js';
+import UsersDB from './userdb.js';
 import { NotFindError, ParametrsError } from './errors.js';
 
 export default class Controller {
-  private users: Map<string, User> = new Map();
-
   async getUsers(): Promise<User[]> {
     return new Promise((resolve, reject) => {
-      resolve(Array.from(this.users.values()));
+      resolve(Array.from(UsersDB.users.values()));
       reject();
     });
   }
@@ -14,7 +13,7 @@ export default class Controller {
   async getUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!User.validId(id)) reject(new ParametrsError());
-      const user: User | undefined = this.users.get(id);
+      const user: User | undefined = UsersDB.users.get(id);
       if (user) resolve(user);
       else reject(new NotFindError('User'));
     });
@@ -25,7 +24,7 @@ export default class Controller {
       if (!user) reject(new ParametrsError());
       if (User.isValid(user)) {
         const newUser = new User(user);
-        this.users.set(newUser.id, newUser);
+        UsersDB.users.set(newUser.id, newUser);
         resolve(newUser);
       } else reject(new ParametrsError('Not contain required fields'));
     });
@@ -34,12 +33,12 @@ export default class Controller {
   async updateUser(id: string, updateUser: User): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!User.validId(id)) reject(new ParametrsError());
-      const user = this.users.get(id);
+      const user = UsersDB.users.get(id);
       if (!user) {
         reject(new NotFindError('User'));
       } else {
         user.update(updateUser);
-        this.users.set(user.id, user);
+        UsersDB.users.set(user.id, user);
         resolve(user);
       }
     });
@@ -48,10 +47,10 @@ export default class Controller {
   async deleteUser(id: string): Promise<User> {
     return new Promise((resolve, reject) => {
       if (!User.validId(id)) reject(new ParametrsError());
-      const user = this.users.get(id);
+      const user = UsersDB.users.get(id);
       if (!user) reject(new NotFindError('User'));
       else {
-        this.users.delete(id);
+        UsersDB.users.delete(id);
         resolve(user);
       }
     });
