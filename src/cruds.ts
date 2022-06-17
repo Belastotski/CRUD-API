@@ -14,8 +14,7 @@ export default class CRUDS {
         request.on('end', () => {
           let json = content.trim();
           if (!json) json = '{}';
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const user: User = JSON.parse(content);
+          const user: User = JSON.parse(content) as User;
           resolve(user);
         });
       } catch (error) {
