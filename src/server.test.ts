@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import { CRUDTester } from './CRUDTester.js';
 import { v4 } from 'uuid';
 import User from './entity/user.js';
-import UsersDB from './userdb.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
@@ -103,7 +102,6 @@ await tester
       console.log(`Test GET ALL users is ${pass ? 'pass' : 'failed'}`);
       if (!pass) console.log(message);
     } else console.log(`Scenario failed`);
-    UsersDB.clear();
     console.log();
   });
 
@@ -118,17 +116,21 @@ await tester
       return null;
     }
   })
-  .then((user) => {
+  .then(async (user) => {
     if (!user) return null;
-    return tester.test('DELETE', `/api/users/${v4()}`, null, 404, '{"message":"User not found"}');
+    return {
+      id: user.id,
+      res: await tester.test('DELETE', `/api/users/${v4()}`, null, 404, '{"message":"User not found"}'),
+    };
   })
-  .then((res) => {
-    if (!res) {
+  .then(async (data) => {
+    if (!data) {
       console.log(`Scenario 3 failed`);
     } else {
+      const { id, res } = data;
+      await tester.test('DELETE', `/api/users/${id}`, null);
       const { pass, message } = res;
       console.log(`Delete missing user is ${pass ? 'pass' : 'failed'}`);
       if (!pass) console.log(message);
     }
-    UsersDB.clear();
   });
