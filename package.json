@@ -2,15 +2,14 @@
   "name": "crud-api",
   "version": "1.0.0",
   "description": "",
-
   "type": "module",
   "scripts": {
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix",
     "start:dev": "nodemon",
     "start:prod": "tsc && node build/index.js",
-    "start:multi": "nodemon --mult", 
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:multi": "nodemon --mult",
+    "test": "tsc && node build/server.test.js"
   },
   "repository": {
     "type": "git",
