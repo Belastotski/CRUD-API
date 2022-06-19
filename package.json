@@ -1,0 +1,43 @@
+{
+  "name": "crud-api",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint src/**/*.ts",
+    "format": "eslint src/**/*.ts --fix",
+    "start:dev": "nodemon",
+    "start:prod": "tsc && node build/index.js",
+    "start:multi": "nodemon --mult",
+    "test": "tsc && node build/server.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Belastotski/CRUD-API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Belastotski/CRUD-API/issues"
+  },
+  "homepage": "https://github.com/Belastotski/CRUD-API#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.42",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
+    "eslint": "^8.17.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.8.1",
+    "typescript": "^4.7.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "prettier": "^2.6.2",
+    "uuid": "^8.3.2"
+  }
+}
