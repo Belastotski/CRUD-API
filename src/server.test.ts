@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import { CRUDTester } from './CRUDTester.js';
+import { v4 } from 'uuid';
 import User from './entity/user.js';
+import UsersDB from './userdb.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
@@ -19,14 +21,28 @@ const getUser = (body: string): User => {
 };
 
 const tester = new CRUDTester('localhost', PORT);
-await tester.test('GET', '/api/users', null, 200, '[]').then(({ pass, message }) => {
-  console.log(`Test GET ALL users is ${pass ? 'pass' : 'failed'}`);
-  if (!pass) console.log(message);
-});
+
+await tester
+  .test('GET', '/api/users', null, 200, '[]')
+  .then(({ pass, message }) => {
+    console.log(`Scenario 1: get all users and get user with invalid id`);
+    console.log(`Test GET ALL users is ${pass ? 'pass' : 'failed'}`);
+    if (!pass) console.log(message);
+    return pass;
+  })
+  .then(() => tester.test('GET', '/api/users/123', null, 400, '{"message":"Invalid parametrs"}'))
+  .then(({ pass, message }) => {
+    console.log(`Test get user with invalid Id is ${pass ? 'pass' : 'failed'}
+    `);
+    if (!pass) console.log(message);
+    return pass;
+  });
+
 await tester
   .test('POST', '/api/users', user, 201)
   .then(({ pass, body }) => {
     const user = getUser(body);
+    console.log(`Scenario 2: CRUD operations`);
     if (User.isValid(user) && pass) {
       console.log(`Test Create user is pass`);
       return user;
@@ -82,8 +98,37 @@ await tester
     return tester.test('GET', '/api/users', null, 200, '[]');
   })
   .then((res) => {
-    if (!res) return null;
-    const { pass, message } = res;
-    console.log(`Test GET ALL users is ${pass ? 'pass' : 'failed'}`);
-    if (!pass) console.log(message);
+    if (res) {
+      const { pass, message } = res;
+      console.log(`Test GET ALL users is ${pass ? 'pass' : 'failed'}`);
+      if (!pass) console.log(message);
+    } else console.log(`Scenario failed`);
+    UsersDB.clear();
+    console.log();
+  });
+
+await tester
+  .test('POST', '/api/users', user, 201)
+  .then(({ pass, body }) => {
+    const user = getUser(body);
+    console.log(`Scenario 3: delete missing user`);
+    if (User.isValid(user) && pass) {
+      return user;
+    } else {
+      return null;
+    }
+  })
+  .then((user) => {
+    if (!user) return null;
+    return tester.test('DELETE', `/api/users/${v4()}`, null, 404, '{"message":"User not found"}');
+  })
+  .then((res) => {
+    if (!res) {
+      console.log(`Scenario 3 failed`);
+    } else {
+      const { pass, message } = res;
+      console.log(`Delete missing user is ${pass ? 'pass' : 'failed'}`);
+      if (!pass) console.log(message);
+    }
+    UsersDB.clear();
   });
